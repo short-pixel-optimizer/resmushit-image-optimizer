@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 
 use \reSmushit as reSmushit;
 use \Resmush\ShortPixelLogger\ShortPixelLogger as Log;
-
+use reSmushitUI;
 
 class AjaxController
 {
