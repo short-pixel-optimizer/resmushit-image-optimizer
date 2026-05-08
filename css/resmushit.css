@@ -143,12 +143,19 @@
   }
 
 
+@keyframes rsmt-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 .rsmt-bulk .loader{
-  height: 50px;
-  width: 50px;
+  height: 28px;
+  width: 28px;
   display: inline-block;
-  background-image: url(../images/clock.gif);
-  background-repeat: no-repeat;
+  border: 3px solid rgba(26, 189, 202, 0.2);
+  border-top-color: #1ABDCA;
+  border-radius: 50%;
+  animation: rsmt-spin 0.85s linear infinite;
+  vertical-align: middle;
 }
 .rsmt-bulk .disabled{
   display: none;
@@ -318,16 +325,18 @@
   }
 
 input[type=checkbox].rsmt-disable-loader{
-  border:none;
+  -webkit-appearance: none;
+  appearance: none;
   height: 16px;
   width: 16px;
   display: inline-block;
-  background-image: url(../images/loading.gif);
-  background-repeat: no-repeat;
+  border: 2px solid rgba(26, 189, 202, 0.25);
+  border-top-color: #1ABDCA;
+  border-radius: 50%;
+  animation: rsmt-spin 0.85s linear infinite;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
-  input[type=checkbox].rsmt-disable-loader:checked:before{
-    content: "";
-  }
 
 
 @media screen and (max-width: 1100px) {

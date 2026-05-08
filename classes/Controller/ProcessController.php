@@ -120,7 +120,9 @@ class ProcessController
   	$basefile = basename($attachments[ 'file' ]);
 
   	$statsObj = reSmushit::optimize($basepath . $basefile,true );
-    $attachments['filesize'] = $statsObj->dest_size;
+    if ($statsObj && isset($statsObj->dest_size)) {
+        $attachments['filesize'] = $statsObj->dest_size;
+    }
     $statistics[]  = $statsObj;
 
   	if(!isset($attachments[ 'sizes' ])) {
@@ -130,7 +132,7 @@ class ProcessController
   	foreach($attachments['sizes'] as $thumbnail_name => $image_style) {
         $statsObj = reSmushit::optimize($basepath . $image_style['file'], FALSE );
         // Update Filesize in the WP metadata
-        if (isset($attachments['sizes'][$thumbnail_name]))
+        if ($statsObj && isset($statsObj->dest_size) && isset($attachments['sizes'][$thumbnail_name]))
         {
           $attachments['sizes'][$thumbnail_name]['filesize'] = $statsObj->dest_size;
         }

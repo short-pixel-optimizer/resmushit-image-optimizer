@@ -4,14 +4,14 @@
  * @author    ShortPixel, Charles Bourgeaux <hello@resmush.it>
  * @license   GPL-2.0+
  * @link      http://www.resmush.it
- * @copyright 2024 Resmush.it
+ * @copyright 2026 Resmush.it
  *
  * @wordpress-plugin
  * Plugin Name:       reSmush.it Image Optimizer
  * Plugin URI:        https://wordpress.org/plugins/resmushit-image-optimizer/
  * Description:       100% Free Image Optimizer and Compressor plugin. Fast JPEG/PNG and GIF compression.
- * Version:           1.0.4
- * Timestamp:         2024.09.23
+ * Version:           1.0.5
+ * Timestamp:         2026.05.08
  * Author:            reSmush.it
  * Author URI:        https://resmush.it
  * Author:            Charles Bourgeaux, ShortPixel
@@ -24,7 +24,7 @@
 
 require('resmushit.inc.php');
 
-define( 'RESMUSH_PLUGIN_VERSION', '1.0.4');
+define( 'RESMUSH_PLUGIN_VERSION', '1.0.5');
 define( 'RESMUSH_PLUGIN_FILE', __FILE__ );
 define( 'RESMUSH_PLUGIN_PATH', plugin_dir_path(__FILE__) );
 
