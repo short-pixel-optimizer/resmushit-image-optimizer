@@ -17,7 +17,7 @@
  * Author:            Charles Bourgeaux, ShortPixel
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * GitHub Plugin URI: https://github.com/resmushit/wordpress-plugin
+ * GitHub Plugin URI: https://github.com/short-pixel-optimizer/resmushit-image-optimizer
  * Domain Path:       /languages
  * Text Domain:	      resmushit-image-optimizer
  */
