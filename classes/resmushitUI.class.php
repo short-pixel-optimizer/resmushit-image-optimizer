@@ -15,7 +15,7 @@ use \Resmush\Controller\CronController as CronController;
    *
    * @package    Resmush.it
    * @subpackage UI
-   * @author     Charles Bourgeaux <contact@resmush.it>
+   * @author     ShortPixel
    */
 Class reSmushitUI {
 
@@ -139,14 +139,14 @@ Class reSmushitUI {
             . self::addSetting("checkbox", __("Optimize on upload", 'resmushit-image-optimizer'), __("Once activated, newly uploaded images are automatically optimized.", 'resmushit-image-optimizer'), "resmushit_on_upload")
             . self::addSetting("checkbox", __("Preserve EXIF", 'resmushit-image-optimizer'), __("Activate this option to retain the original EXIF data in the images.", 'resmushit-image-optimizer'), "resmushit_preserve_exif")
             . self::addSetting("checkbox",  __("Deactivate backup", 'resmushit-image-optimizer'), sprintf(__("If you select this option, you choose not to keep the original version of the images. This is helpful to save disk space, but we strongly recommend having a backup of the entire website on hand. <a href='%s' title='Should I remove backups?' target='_blank'>More information</a>.", "resmushit-image-optimizer"), "https://resmush.it/why-preserving-backup-files/"), "resmushit_remove_unsmushed")
-            . self::addSetting("checkbox",  __("Optimize images using CRON", 'resmushit-image-optimizer'), sprintf(__("Image optimization is performed automatically via CRON tasks. <a href='%s' title='How to configure Cronjobs?' target='_blank'>More information</a>", 'resmushit-image-optimizer'), 'https://resmush.it/how-to-configure-cronjobs/'), "resmushit_cron")
-        . self::addSetting("checkbox", __("Generate WebP/AVIF", 'resmushit-image-optimizer'), sprintf(__("Create WebP/AVIF versions of the images. %s Premium Conversion Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif")
-        . self::addSetting("checkbox", __("CDN Delivery", 'resmushit-image-optimizer'), sprintf(__("Deliver optimized images using our CDN. %s Get CDN Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif")
-        . self::addSetting("checkbox", __("SmartCropping", 'resmushit-image-optimizer'), sprintf(__("Generate subject-centered thumbnails using ShortPixel's AI Engine. %s Get Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif")
+            . self::addSetting("checkbox",  __("Optimize images using CRON", 'resmushit-image-optimizer'), sprintf(__("Image optimization is performed automatically via CRON tasks. <a href='%s' title='How to configure Cronjobs?' target='_blank'>More information</a>.", 'resmushit-image-optimizer'), 'https://resmush.it/how-to-configure-cronjobs/'), "resmushit_cron")
+        . self::addSetting("checkbox", __("Generate WebP/AVIF", 'resmushit-image-optimizer'), sprintf(__("Create WebP/AVIF versions of the images. %s Premium Conversion Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif", true)
+        . self::addSetting("checkbox", __("CDN Delivery", 'resmushit-image-optimizer'), sprintf(__("Deliver optimized images using our CDN. %s Get CDN Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif", true)
+        . self::addSetting("checkbox", __("SmartCropping", 'resmushit-image-optimizer'), sprintf(__("Generate subject-centered thumbnails using ShortPixel's AI Engine. %s Get Access %s ", 'resmushit-image-optimizer'), '<a href="https://shortpixel.com/compare/resmushit-vs-shortpixel" target="_blank">', '</a>'), "resmushit_webpavif", true)
 
 				. self::addSetting("checkbox", __("Activate statistics", 'resmushit-image-optimizer'), __("Generates statistics about optimized images.", 'resmushit-image-optimizer'), "resmushit_statistics")
 				. '</table>';
-		submit_button();
+		submit_button(null, 'primary rsmt-sp-button rsmt-sp-button--blue');
 		echo '</form></div>';
 		self::fullWidthPanelEndWrapper();
 	}
@@ -195,8 +195,7 @@ Class reSmushitUI {
 			. __('This action resmushes all images that have not yet been optimized with the image quality specified in the settings. If the image quality has been changed and backups are activated, images that have already been optimized are resmushed with the new image quality rate.', 'resmushit-image-optimizer'));
       if ($limitReached)
       {
-          echo wp_kses_post('<p>' . __('The plugin optimizes batches of up to 1000 images at a time. After each batch is completed, refresh this page and you can cont
-inue the process.', 'resmushit-image-optimizer') . '</p>');
+          echo wp_kses_post('<p>' . __('The plugin optimizes batches of up to 1000 images at a time. After each batch is completed, refresh this page and you can continue the process.', 'resmushit-image-optimizer') . '</p>');
       }
 		}
 
@@ -206,7 +205,7 @@ inue the process.', 'resmushit-image-optimizer') . '</p>');
 				'onclick'      => array()
 			)));
 
-		echo wp_kses("</p><p class='submit' id='bulk-resize-examine-button'><button class='button-primary' onclick='resmushit_bulk_resize(\"bulk_resize_image_list\", \"" . wp_create_nonce( 'bulk_resize' ) . "\");'>", $allowed_html);
+		echo wp_kses("</p><p class='submit' id='bulk-resize-examine-button'><button class='button-primary rsmt-sp-button rsmt-sp-button--blue' onclick='resmushit_bulk_resize(\"bulk_resize_image_list\", \"" . wp_create_nonce( 'bulk_resize' ) . "\");'>", $allowed_html);
 
 		if(get_option('resmushit_cron') && get_option('resmushit_cron') == 1) {
 			echo wp_kses_post(__('Optimize all images manually', 'resmushit-image-optimizer'));
@@ -388,14 +387,41 @@ inue the process.', 'resmushit-image-optimizer') . '</p>');
 			'class'      => array(),
 			'name'      => array(),
 			'data-csrf'      => array(),
-		)));
+		),
+		'button' => array(
+			'type'      => array(),
+			'class'     => array(),
+			'name'      => array(),
+			'data-csrf' => array(),
+		),
+		'svg' => array(
+			'class'   => array(),
+			'xmlns'   => array(),
+			'viewbox' => array(),
+			'width'   => array(),
+			'height'  => array(),
+			'fill'    => array(),
+			'aria-hidden' => array(),
+		),
+		'path' => array(
+			'd'    => array(),
+			'fill' => array(),
+		),
+		));
+
+		$icon_svg = '<svg class="rsmt-spin-icon" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="18" height="18" aria-hidden="true">'
+			. '<path fill="currentColor" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>'
+			. '</svg>';
 
 		echo wp_kses("<div class='rsmt-restore'>"
 			. '<p><strong>'
 			. __('Warning! By clicking the button below, all original images will revert to the state they were in before they were optimized with reSmush.it Image Optimizer!', 'resmushit-image-optimizer')
 			. '</strong></p><p>'
-			. '<input type="button" data-csrf="'. wp_create_nonce( 'restore_library' ) .'" value="'. __('Restore ALL my original images', 'resmushit-image-optimizer') .'" class="rsmt-trigger--restore-backup-files button media-button  select-mode-toggle-button" name="resmushit" class="button wp-smush-send" />'
-			. '</div>', $allowed_html);
+			. '<button type="button" data-csrf="'. wp_create_nonce( 'restore_library' ) .'" class="rsmt-trigger--restore-backup-files rsmt-sp-button rsmt-sp-button--orange" name="resmushit">'
+			. $icon_svg
+			. '<span class="rsmt-restore-label">'. esc_html__('Restore ALL my original images', 'resmushit-image-optimizer') .'</span>'
+			. '</button>'
+			. '</p></div>', $allowed_html);
 		self::fullWidthPanelEndWrapper();
 	}
 
@@ -562,9 +588,10 @@ inue the process.', 'resmushit-image-optimizer') . '</p>');
 	 * @param  string $machine_name 	setting machine name
 	 * @return none
 	 */
-    public static function addSetting($type, $name, $extra, $machine_name) {
+    public static function addSetting($type, $name, $extra, $machine_name, $pro = false) {
         $output = "<div class='setting-row type-$type'>";
-        $label = "<label for='$machine_name'>$name<p>$extra</p></label>";
+        $name_html = $name . ($pro ? ' <span class="rsmt-pro-badge">PRO</span>' : '');
+        $label = "<label for='$machine_name'>$name_html<p>$extra</p></label>";
 
         switch ($type) {
             case 'text':

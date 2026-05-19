@@ -357,6 +357,7 @@ echo "</div>";
             'picture_too_big' => __('image(s) cannot be optimized (>5MB). All others have been optimized.', "resmushit-image-optimizer"),
             'error_webservice' => __('An error occured when contacting the API. Please try again later.', "resmushit-image-optimizer"),
             'restoring' => __('Restoring...', 'resmushit-image-optimizer'),
+            'images_remaining' => __('remaining', 'resmushit-image-optimizer'),
             'stop_optimization' => __('Stop bulk optimization', 'resmushit-image-optimizer'),
 
         );

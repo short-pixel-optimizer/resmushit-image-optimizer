@@ -221,58 +221,127 @@ class AjaxController
   */
   public function restore_backup_files() {
   	if ( !isset($_REQUEST['csrf']) || ! wp_verify_nonce( $_REQUEST['csrf'], 'restore_library' ) ) {
-  		wp_send_json(json_encode(array('error' => 'Invalid CSRF token')));
-  		die();
+  		wp_send_json(array('error' => 'Invalid CSRF token'));
   	}
   	if(!is_super_admin() && !current_user_can('administrator')) {
-		wp_send_json(json_encode(array('error' => 'The user must be an administrator to retrieve this data')));
-  		die();
+		wp_send_json(array('error' => 'The user must be an administrator to retrieve this data'));
   	}
-  	$files= reSmushit::detect_unsmushed_files();
-  	$return = array('success' => 0);
-  	$wp_upload_dir=wp_upload_dir();
 
-    $processController = ProcessController::getInstance();
-    $processController->unHookProcessor();
+  	$count_only = !empty($_POST['count_only']);
+  	$batch = isset($_POST['batch']) ? max(1, min(20, (int)$_POST['batch'])) : 3;
 
-  	foreach($files as $f) {
-  		$dest = str_replace('-unsmushed', '', $f);
-  		$pictureURL = str_replace($wp_upload_dir['basedir'], $wp_upload_dir['baseurl'], $dest);
-  		$attachment_id = reSmushit::resmushit_get_image_id($pictureURL);
+  	$wp_upload_dir = wp_upload_dir();
+  	$basedir = $wp_upload_dir['basedir'];
 
-      if (false === $attachment_id)
-      {
-         Log::addTemp('First Try failed - '. $pictureURL);
-         if (strpos($pictureURL, '-scaled') !== false)
-         {
-            $pictureURL = str_replace('-scaled', '', $pictureURL);
-            $attachment_id = reSmushit::resmushit_get_image_id($pictureURL);
-            if (false === $attachment_id)
-            {
-              Log::addWarn('Restoring - no attachmentID for this URL '. $pictureURL);
-              continue;
-            }
-            else {
-              Log::addTemp('Second Try: ' . $attachment_id);
-            }
-         }
-         else {
-           Log::addWarn('Restoring - no attachmentID for this URL '. $pictureURL);
-           continue;
-         }
-      }
+  	$files = reSmushit::detect_unsmushed_files();
 
-  		if(reSmushit::revert($attachment_id, true)) {
-  			if(unlink($f)) {
-  				$return['success']++;
-  			}
+  	// Filter to only restorable backups (those whose attachment still exists). Orphan
+  	// `-unsmushed` files left over from deleted attachments are excluded so the count
+  	// the user sees matches what will actually be restored.
+  	$restorable = array();
+  	foreach ($files as $f) {
+  		if (false !== $this->find_attachment_id_for_backup($f, $basedir)) {
+  			$restorable[] = $f;
   		}
   	}
-  	wp_send_json(json_encode($return));
-  	die();
+
+  	if ($count_only) {
+  		wp_send_json(array('total' => count($restorable), 'remaining' => count($restorable)));
+  	}
+
+  	$processController = ProcessController::getInstance();
+  	$processController->unHookProcessor();
+
+  	$success = 0;
+  	$processed = 0;
+  	$skipped  = 0;
+
+  	foreach($restorable as $f) {
+  		if ($processed >= $batch) break;
+  		$processed++;
+
+  		$attachment_id = $this->find_attachment_id_for_backup($f, $basedir);
+
+  		if (false === $attachment_id) {
+  			// Race: the attachment was deleted between the count and the loop. Skip.
+  			Log::addWarn('Restoring - no attachmentID for backup file '. $f);
+  			$skipped++;
+  			continue;
+  		}
+
+  		$result = reSmushit::revert($attachment_id, true);
+  		// revert() returns a status string from wasSuccessfullyUpdated() — 'success', 'failed',
+  		// 'file_too_big', 'file_not_found', 'disabled'. Treat anything other than the status
+  		// strings indicating a missing/disabled attachment as a successful restore: the backup
+  		// has already been moved over the live file by this point.
+  		if ($result && $result !== 'file_not_found' && $result !== 'disabled') {
+  			if (file_exists($f)) {
+  				@unlink($f);
+  			}
+  			$success++;
+  		} else {
+  			$skipped++;
+  		}
+  	}
+
+  	// Recompute remaining restorable count after this batch.
+  	$remaining_files = reSmushit::detect_unsmushed_files();
+  	$remaining = 0;
+  	foreach ($remaining_files as $f) {
+  		if (false !== $this->find_attachment_id_for_backup($f, $basedir)) {
+  			$remaining++;
+  		}
+  	}
+
+  	wp_send_json(array(
+  		'success'   => $success,
+  		'processed' => $processed,
+  		'skipped'   => $skipped,
+  		'remaining' => $remaining,
+  	));
   }
 
 
+  /**
+   * Map a backup file path (`/abs/path/foo-unsmushed.jpg`) back to its attachment ID.
+   *
+   * Tries postmeta `_wp_attached_file` first (independent of site URL / GUID), then falls back
+   * to GUID-based lookup, then to `attachment_url_to_postid()`. This is robust against
+   * http→https moves, domain changes, www toggles and `-scaled` variants — all common
+   * scenarios where the legacy GUID match returns nothing.
+   */
+  private function find_attachment_id_for_backup($backup_path, $uploads_basedir) {
+  	global $wpdb;
+
+  	$dest = str_replace('-unsmushed', '', $backup_path);
+  	$relative = ltrim(str_replace($uploads_basedir, '', $dest), '/\\');
+
+  	$candidates = array($relative);
+  	if (strpos($relative, '-scaled') !== false) {
+  		$candidates[] = str_replace('-scaled', '', $relative);
+  	}
+
+  	foreach ($candidates as $rel) {
+  		$id = $wpdb->get_var($wpdb->prepare(
+  			"SELECT post_id FROM $wpdb->postmeta WHERE meta_key='_wp_attached_file' AND meta_value=%s LIMIT 1",
+  			$rel
+  		));
+  		if ($id) return (int)$id;
+  	}
+
+  	$wp_upload_dir = wp_upload_dir();
+  	foreach ($candidates as $rel) {
+  		$url = trailingslashit($wp_upload_dir['baseurl']) . $rel;
+  		$id = reSmushit::resmushit_get_image_id($url);
+  		if (false !== $id && $id) return (int)$id;
+  		if (function_exists('attachment_url_to_postid')) {
+  			$id = attachment_url_to_postid($url);
+  			if ($id) return (int)$id;
+  		}
+  	}
+
+  	return false;
+  }
 
 
 } // class

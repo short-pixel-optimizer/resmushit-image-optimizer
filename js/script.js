@@ -1,4 +1,3 @@
-
 /**
  * Bulk Resize admin javascript functions
  */
@@ -154,7 +153,7 @@ function resmushit_bulk_process(bulk, item){
 				jQuery('#bulk_resize_target').remove();
 				container.append('<div id="smush_results" style="padding: 20px 5px; overflow: auto;" />');
 				var results_target = jQuery('#smush_results');
-				results_target.html('<div class="bulk--back-progressionbar"><div class="resmushit--progress--bar"></div></div><button id="stopbulk" class="button button-primary" >' + reSmush.strings.stop_optimization + '</button>');
+				results_target.html('<div class="bulk--back-progressionbar"><div class="resmushit--progress--bar"></div></div><button id="stopbulk" class="button button-primary rsmt-sp-button rsmt-sp-button--blue" >' + reSmush.strings.stop_optimization + '</button>');
 				flag_removed = true;
 			}
 
@@ -375,27 +374,76 @@ function removeBackupFiles() {
 
 
 /**
- * ajax to Optimize a single picture
+ * ajax to restore all -unsmushed backup files, processed in batches
  */
 function restoreBackupFiles() {
-	jQuery(document).delegate(".rsmt-trigger--restore-backup-files","click",function(e){
-		if ( confirm( reSmush.strings.restore_all_confirm) ) {
-
-		    e.preventDefault();
-			var current = this;
-			jQuery(current).val('Restoring backups...');
-			jQuery(current).prop('disabled', true);
-			var csrf_token = jQuery(current).attr('data-csrf');
-			jQuery.post(
-				ajaxurl, {
-					action: 'resmushit_restore_backup_files',
-					csrf: csrf_token
-				},
-				function(response) {
-					var data = JSON.parse(response);
-					jQuery(current).val(data.success + ' ' +  reSmush.strings.images_restored );
-				}
-			);
+	jQuery(document).on("click", ".rsmt-trigger--restore-backup-files", function(e){
+		e.preventDefault();
+		if ( !confirm( reSmush.strings.restore_all_confirm) ) {
+			return;
 		}
+
+		var $btn       = jQuery(this);
+		var $label     = $btn.find('.rsmt-restore-label');
+		var csrf_token = $btn.attr('data-csrf');
+		var totalSuccess = 0;
+		var lastRemaining = -1;
+
+		$btn.prop('disabled', true).addClass('is-spinning');
+
+		function setLabel(text) {
+			if ($label.length) { $label.text(text); } else { $btn.text(text); }
+		}
+
+		function fail(msg) {
+			$btn.removeClass('is-spinning').prop('disabled', false);
+			setLabel(msg || (reSmush.strings.error_webservice || 'Error'));
+		}
+
+		function done() {
+			$btn.removeClass('is-spinning').prop('disabled', false);
+			setLabel(totalSuccess + ' ' + reSmush.strings.images_restored);
+		}
+
+		function processBatch() {
+			jQuery.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					action: 'resmushit_restore_backup_files',
+					csrf: csrf_token,
+					batch: 3
+				}
+			}).done(function(data) {
+				if (!data || data.error) { fail(data && data.error); return; }
+				totalSuccess += (data.success || 0);
+				var madeProgress = (lastRemaining === -1) || (data.remaining < lastRemaining);
+				lastRemaining = data.remaining;
+				if (data.remaining > 0 && data.processed > 0 && madeProgress) {
+					setLabel((reSmush.strings.restoring || 'Restoring...') + ' ' + data.remaining + ' ' + (reSmush.strings.images_remaining || 'remaining'));
+					processBatch();
+				} else {
+					done();
+				}
+			}).fail(function(){ fail(); });
+		}
+
+		// kick off: get the count first so the user immediately sees the size of the job
+		jQuery.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'resmushit_restore_backup_files',
+				csrf: csrf_token,
+				count_only: 1
+			}
+		}).done(function(data){
+			if (!data || data.error) { fail(data && data.error); return; }
+			if (!data.total) { done(); return; }
+			setLabel((reSmush.strings.restoring || 'Restoring...') + ' ' + data.total + ' ' + (reSmush.strings.images_remaining || 'remaining'));
+			processBatch();
+		}).fail(function(){ fail(); });
 	});
 }

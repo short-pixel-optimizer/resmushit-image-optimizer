@@ -3,7 +3,7 @@ Contributors: ShortPixel, resmushit
 Donate link: https://ko-fi.com/resmushit
 Tags: image, optimizer, image optimization, smush, free image optimization
 Requires at least: 4.0.0
-Tested up to: 6.6
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.0.5
 License: GPLv2 or later
@@ -103,7 +103,7 @@ Please report security bugs found in the source code of the reSmush.it Image Opt
 == Changelog ==
 
 = 1.0.5 =
-Release date May 10, 2026
+Release date May 19, 2026
 * New: Progress is now displayed when restoring from backups;
 * Tweak: Small UI changes;
 * Fix: Fixed the backups restore feature which wasn't working in some edge cases;

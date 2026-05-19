@@ -211,29 +211,51 @@
 .resmush-settings-ui .rsmt-tab-actions .support {
   padding-left: 60px;
 }
+.rsmt-pro-badge,
+.resmush-settings-ui .rsmt-settings .rsmt-pro-badge,
+.resmush-settings-ui .rsmt-settings span.rsmt-pro-badge {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+  margin: 0 0 0 8px;
+  padding: 1px 7px;
+  background-color: #1ABDCA;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.4;
+  border-radius: 3px;
+  text-transform: uppercase;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
 .resmush-settings-ui .quality-buttons {
   display: flex;
   flex-wrap: wrap;
 }
 .resmush-settings-ui .quality-buttons .quality-button {
-  background-color: #e0f7fa;
-  border: 1px solid #00796b;
-  color: #00796b;
+  background-color: #fff;
+  border: 1px solid #1ABDCA;
+  color: #1ABDCA;
   font-weight: bold;
   padding: 8px 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   flex-grow: 1;
   text-align: center;
   margin: 0;
   box-sizing: border-box;
 }
 .resmush-settings-ui .quality-buttons .quality-button:hover {
-  background-color: #b2ebf2;
-  color: #004d40;
+  background-color: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #ffffff;
 }
 .resmush-settings-ui .quality-buttons .quality-button.active {
-  background-color: #00796b;
+  background-color: #1ABDCA;
+  border-color: #1ABDCA;
   color: #ffffff;
   font-weight: bold;
 }
@@ -281,6 +303,130 @@
 }
 .resmush-settings-ui .update-nag a:hover {
   border-bottom-style: solid;
+}
+
+/* ShortPixel-style solid action buttons.
+   Blue variant: Optimize all / Save Changes / Stop bulk optimization.
+   Orange variant: Restore ALL my original images. */
+.rsmt-sp-button,
+.rsmt-sp-button.button,
+.rsmt-sp-button.button-primary,
+input.rsmt-sp-button[type=submit] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 22px;
+  min-height: 44px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 200ms linear, border-color 200ms linear, transform 60ms ease, box-shadow 200ms linear;
+  box-shadow: 0 1px 1px rgba(171, 170, 170, 0.3);
+  outline: none;
+  -webkit-appearance: none;
+}
+.rsmt-sp-button:active,
+.rsmt-sp-button.button:active,
+input.rsmt-sp-button[type=submit]:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+.rsmt-sp-button:disabled,
+.rsmt-sp-button[disabled] {
+  cursor: progress;
+}
+
+/* Blue variant — Optimize all images, Save Changes, Stop bulk optimization */
+.rsmt-sp-button--blue,
+.rsmt-sp-button--blue.button-primary,
+input.rsmt-sp-button--blue[type=submit] {
+  background: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #fff;
+}
+.rsmt-sp-button--blue:hover,
+.rsmt-sp-button--blue:focus,
+.rsmt-sp-button--blue:active,
+.rsmt-sp-button--blue.button-primary:hover,
+.rsmt-sp-button--blue.button-primary:focus,
+.rsmt-sp-button--blue.button-primary:active,
+input.rsmt-sp-button--blue[type=submit]:hover,
+input.rsmt-sp-button--blue[type=submit]:focus,
+input.rsmt-sp-button--blue[type=submit]:active {
+  background: #32d7e5;
+  border-color: #32d7e5;
+  color: #fff;
+}
+.rsmt-sp-button--blue:focus-visible {
+  box-shadow: 0 0 0 3px rgba(26, 189, 202, 0.35);
+}
+.rsmt-sp-button--blue:disabled,
+.rsmt-sp-button--blue[disabled] {
+  background: #1ABDCA;
+  border-color: #1ABDCA;
+  color: #fff;
+  opacity: 0.8;
+}
+
+/* Orange variant — Restore ALL my original images */
+.rsmt-sp-button.rsmt-sp-button--orange,
+.rsmt-sp-button--orange.button,
+.rsmt-sp-button--orange.button-primary,
+button.rsmt-sp-button--orange {
+  background: #f57224;
+  border-color: #f57224;
+  color: #fff;
+}
+.rsmt-sp-button.rsmt-sp-button--orange:hover,
+.rsmt-sp-button.rsmt-sp-button--orange:focus,
+.rsmt-sp-button.rsmt-sp-button--orange:active,
+.rsmt-sp-button--orange.button:hover,
+.rsmt-sp-button--orange.button:focus,
+.rsmt-sp-button--orange.button:active,
+button.rsmt-sp-button--orange:hover,
+button.rsmt-sp-button--orange:focus,
+button.rsmt-sp-button--orange:active {
+  background: #ff8c47;
+  border-color: #ff8c47;
+  color: #fff;
+}
+.rsmt-sp-button--orange:focus-visible {
+  box-shadow: 0 0 0 3px rgba(245, 114, 36, 0.35);
+}
+.rsmt-sp-button.rsmt-sp-button--orange:disabled,
+.rsmt-sp-button.rsmt-sp-button--orange[disabled],
+button.rsmt-sp-button--orange:disabled,
+button.rsmt-sp-button--orange[disabled] {
+  background: #ff8c47;
+  border-color: #ff8c47;
+  color: #fff;
+  opacity: 0.95;
+}
+
+/* Rotating SVG icon — only spins when the button has .is-spinning */
+.rsmt-sp-button .rsmt-spin-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+}
+.rsmt-sp-button .rsmt-restore-label {
+  white-space: nowrap;
+}
+.rsmt-sp-button.is-spinning .rsmt-spin-icon {
+  animation: rsmt-spin 0.85s linear infinite;
+}
+@keyframes rsmt-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 /*# sourceMappingURL=resmush_admin.css.map */
